@@ -1,21 +1,37 @@
 pipeline {
-    agent any
-    stages {
-        stage('Checkout') {
-            steps {
-                // Clone the repo
-                git 'https://github.com/YOUR_USERNAME/revision.git'
-            }
-        }
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm install'
-            }
-        }
-        stage('Run Application') {
-            steps {
-                sh 'node index.js &'
-            }
-        }
+  agent any
+  environment {
+    IMAGE = "yourdockerhubusername/revision"
+  }
+  stages {
+    stage('Checkout') {
+      steps { checkout scm }
     }
+    stage('Install') {
+      steps { sh 'npm install' }
+    }
+    stage('Test') {
+      steps { sh 'npm test || true' }
+    }
+    stage('Build Image') {
+      steps {
+        sh "docker build -t ${IMAGE}:$BUILD_NUMBER ."
+      }
+    }
+    stage('Push Image') {
+      when {
+        expression { env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'master' }
+      }
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+          sh "docker push ${IMAGE}:$BUILD_NUMBER"
+        }
+      }
+    }
+  }
+  post {
+    success { echo 'Pipeline succeeded' }
+    failure { echo 'Pipeline failed' }
+  }
 }

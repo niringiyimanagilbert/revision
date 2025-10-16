@@ -3,18 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "test": "jest --runInBand --json --outputFile=jest-results.json"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/niringiyimanagilbert/revision.git"
-  },
-  "keywords": [],
-  "author": "school",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/niringiyimanagilbert/revision/issues"
-  },
-  "homepage": "https://github.com/niringiyimanagilbert/revision#readme",
-  "description": ""
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
 }
